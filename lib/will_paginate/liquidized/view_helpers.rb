@@ -1,5 +1,9 @@
+require 'will_paginate/view_helpers'
+require 'will_paginate/view_helpers/link_renderer'
+
 module WillPaginate::Liquidized
   module ViewHelpers
+
     include WillPaginate::ViewHelpers
 
     def will_paginate_liquid(collection, anchor = nil, prev_label = nil, next_label = nil)
@@ -47,7 +51,7 @@ module WillPaginate::Liquidized
     end
   end
 
-  class LinkRenderer < WillPaginate::LinkRenderer
+  class LinkRenderer < WillPaginate::ViewHelpers::LinkRenderer
 
     include ActionView::Helpers::UrlHelper
     include ActionView::Helpers::TagHelper
