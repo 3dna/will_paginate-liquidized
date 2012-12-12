@@ -37,16 +37,16 @@ module WillPaginate::Liquidized
 
       if collection.total_pages < 2
         case collection.size
-        when 0; "No #{entry_name.pluralize} found"
-        when 1; "<b>1</b> #{entry_name}"
-        else;   "<b>All #{collection.size}</b> #{entry_name.pluralize}"
+          when 0; "No #{entry_name.pluralize} found"
+          when 1; "<b>1</b> #{entry_name}"
+          else;   "<b>All #{collection.size}</b> #{entry_name.pluralize}"
         end
       else
         %{<b>%d&nbsp;-&nbsp;%d</b> of <b>%d</b> #{entry_name.pluralize}} % [
-                                                                            collection.offset + 1,
-                                                                            collection.offset + collection.length,
-                                                                            collection.total_entries
-                                                                           ]
+          collection.offset + 1,
+          collection.offset + collection.length,
+          collection.total_entries
+        ]
       end.html_safe
     end
   end
@@ -56,18 +56,19 @@ module WillPaginate::Liquidized
     include ActionView::Helpers::UrlHelper
     include ActionView::Helpers::TagHelper
 
+
     def to_html
       return "<p><strong style=\"color:red;\">(Will Paginate Liquidized) Error:</strong> you must pass a controller in Liquid render call; <br/>
               e.g. Liquid::Template.parse(\"{{ movies | will_paginate_liquid }}\").render({'movies' => @movies}, :registers => {:controller => @controller})</p>" unless @options[:controller]
 
-      links = @options[:page_links] ? windowed_links : []
+      links = []
       # previous/next buttons added in to the links collection
-      links.unshift page_link_or_span(@collection.previous_page, 'disabled prev_page', @options[:previous_label])
-      links.push    page_link_or_span(@collection.next_page,     'disabled next_page', @options[:next_label])
-
-      html = links.join(@options[:separator])
+      links.unshift page_link(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
+      links.push    page_link(@collection.next_page, @options[:next_label].html_safe) if @collection.next_page
+      html = links.join(@options[:separator] || "&nbsp;&nbsp;".html_safe)
+      html_attributes ||= {}
       html_attributes.delete(:controller)
-      @options[:container] ? content_tag(:div, html, html_attributes) : html
+      @options[:container] ? content_tag(:div, html.html_safe, html_attributes).html_safe : html.html_safe
     end
 
     def page_link(page, text, attributes = {})
@@ -116,6 +117,20 @@ module WillPaginate::Liquidized
       end
       # finally!
       @url_string.sub '@', page.to_s
+    end
+
+    def stringified_merge(target, other)
+      other.each do |key, value|
+        key = key.to_s
+        existing = target[key]
+
+        if (value.is_a?(Hash) || value.is_a?(HashWithIndifferentAccess)) && (!existing || existing.is_a?(HashWithIndifferentAccess))
+          target[key] = existing || HashWithIndifferentAccess.new
+          stringified_merge(target[key], value)
+        else
+          target[key] = value
+        end
+      end
     end
   end
 end
