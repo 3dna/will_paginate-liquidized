@@ -65,15 +65,20 @@ module WillPaginate::Liquidized
       # previous/next buttons added in to the links collection
       links.unshift page_link(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
       if @options[:page_links]
-        windowed_page_numbers.each do |num|
-          if num == @collection.current_page
-            links << page_span(num, num, class: "current")
+        windowed_page_numbers.each do |item|
+          if item.is_a?(Fixnum)
+            if item == @collection.current_page
+              links << page_span(item, item, class: "current")
+            else
+              links << page_link(item, item)
+            end
           else
-            links << page_link(num, num)
+            links << send(item)
           end
         end
       end
       links.push    page_link(@collection.next_page, @options[:next_label].html_safe) if @collection.next_page
+
       html = links.join(@options[:separator] || "&nbsp;&nbsp;".html_safe)
       html_attributes ||= {}
       html_attributes.delete(:controller)
