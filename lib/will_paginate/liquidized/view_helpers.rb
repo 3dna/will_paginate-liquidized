@@ -99,7 +99,7 @@ module WillPaginate::Liquidized
       links = []
       # previous/next buttons added in to the links collection
       links.unshift page_link_in_li(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
-      links.unshift page_link_in_li('#', @options[:previous_label].html_safe, :class => "disabled") unless @collection.previous_page
+      links.unshift page_link_in_li(nil, @options[:previous_label].html_safe, :class => "disabled") unless @collection.previous_page
       if @options[:page_links]
         windowed_page_numbers.each do |item|
           if item.is_a?(Fixnum)
@@ -114,7 +114,7 @@ module WillPaginate::Liquidized
         end
       end
       links.push    page_link_in_li(@collection.next_page, @options[:next_label].html_safe) if @collection.next_page
-      links.push    page_link_in_li(@collection.next_page, @options[:next_label].html_safe, :class => "disabled") unless @collection.next_page
+      links.push    page_link_in_li(nil, @options[:next_label].html_safe, :class => "disabled") unless @collection.next_page
       html = content_tag :ul, links.join(@options[:separator] || "").html_safe
       html_attributes ||= {}
       html_attributes.delete(:controller)
