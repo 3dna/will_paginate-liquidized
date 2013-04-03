@@ -114,7 +114,7 @@ module WillPaginate::Liquidized
         end
       end
       links.push    page_link_in_li(@collection.next_page, @options[:next_label].html_safe) if @collection.next_page
-      html = content_tag :ul, links.join(@options[:separator] || "").html_safe
+      html = content_tag :ul, links.join(@options[:separator] || "").html_safe, :class => "pagination"
       html_attributes ||= {}
       html_attributes.delete(:controller)
       @options[:container] ? content_tag(:div, html.html_safe, html_attributes).html_safe : html.html_safe
