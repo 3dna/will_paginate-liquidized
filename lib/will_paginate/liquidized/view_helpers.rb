@@ -6,7 +6,7 @@ module WillPaginate::Liquidized
 
     include WillPaginate::ViewHelpers
 
-    def will_paginate_liquid(collection, anchor = nil, prev_label = nil, next_label = nil)
+    def will_paginate_liquid(collection, prev_label = nil, next_label = nil, anchor = nil)
       opts = {}
       opts[:previous_label] = prev_label if prev_label
       opts[:next_label]     = next_label if next_label
@@ -61,6 +61,16 @@ module WillPaginate::Liquidized
       return "<p><strong style=\"color:red;\">(Will Paginate Liquidized) Error:</strong> you must pass a controller in Liquid render call; <br/>
               e.g. Liquid::Template.parse(\"{{ movies | will_paginate_liquid }}\").render({'movies' => @movies}, :registers => {:controller => @controller})</p>" unless @options[:controller]
 
+      theme_api_version = @options[:controller].current_theme.api_version
+
+      if theme_api_version == 2
+        to_html_v2
+      else
+        to_html_v1
+      end
+    end
+
+    def to_html_v1
       links = []
       # previous/next buttons added in to the links collection
       links.unshift page_link(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
@@ -82,11 +92,44 @@ module WillPaginate::Liquidized
       html = links.join(@options[:separator] || "&nbsp;&nbsp;".html_safe)
       html_attributes ||= {}
       html_attributes.delete(:controller)
+
+      @options[:container] ? content_tag(:div, html.html_safe, html_attributes).html_safe : html.html_safe
+    end
+
+    def to_html_v2
+      links = []
+      # previous/next buttons added in to the links collection
+      links.unshift page_link_in_li(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
+      if @options[:page_links]
+        windowed_page_numbers.each do |item|
+          if item.is_a?(Fixnum)
+            if item == @collection.current_page
+              links << page_li(item, item, class: "current")
+            else
+              links << page_link_in_li(item, item)
+            end
+          else
+            links << send(item)
+          end
+        end
+      end
+      links.push    page_link_in_li(@collection.next_page, @options[:next_label].html_safe) if @collection.next_page
+      html = content_tag :ul, links.join(@options[:separator] || "").html_safe
+      html_attributes ||= {}
+      html_attributes.delete(:controller)
       @options[:container] ? content_tag(:div, html.html_safe, html_attributes).html_safe : html.html_safe
     end
 
     def page_link(page, text, attributes = {})
       link_to text, url_for_page(page), attributes
+    end
+
+    def page_link_in_li(page, text, attributes = {})
+      content_tag :li, link_to(text, url_for_page(page), attributes), attributes
+    end
+
+    def page_li(page, text, attributes = {})
+      content_tag :li, text, attributes
     end
 
     def page_span(page, text, attributes = {})
