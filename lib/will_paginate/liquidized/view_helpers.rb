@@ -12,7 +12,6 @@ module WillPaginate::Liquidized
       opts[:next_label]     = next_label if next_label
       opts[:params]         = {:anchor => anchor} if anchor
       opts[:controller]     = @context.registers[:controller]
-
       with_renderer 'WillPaginate::Liquidized::LinkRenderer' do
         will_paginate *[collection, opts].compact
       end
@@ -61,9 +60,9 @@ module WillPaginate::Liquidized
       return "<p><strong style=\"color:red;\">(Will Paginate Liquidized) Error:</strong> you must pass a controller in Liquid render call; <br/>
               e.g. Liquid::Template.parse(\"{{ movies | will_paginate_liquid }}\").render({'movies' => @movies}, :registers => {:controller => @controller})</p>" unless @options[:controller]
 
-      theme_api_version = @options[:controller].current_theme.api_version
+      @theme_api_version = @options[:controller].current_theme.api_version
 
-      if theme_api_version == 2
+      if @theme_api_version == 2
         to_html_v2
       else
         to_html_v1
@@ -135,6 +134,15 @@ module WillPaginate::Liquidized
 
     def page_span(page, text, attributes = {})
       content_tag :span, text, attributes
+    end
+
+    def gap
+      if @theme_api_version == 2
+        text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
+        content_tag :li, text
+      else
+        super
+      end
     end
 
     def url_for_page(page)
