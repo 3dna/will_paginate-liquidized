@@ -139,7 +139,7 @@ module WillPaginate::Liquidized
     def gap
       if @theme_api_version == 2
         text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
-        content_tag :li, text
+        content_tag :li, "<a>#{text}</a>".html_safe
       else
         super
       end
