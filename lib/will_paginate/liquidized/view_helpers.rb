@@ -6,11 +6,12 @@ module WillPaginate::Liquidized
 
     include WillPaginate::ViewHelpers
 
-    def will_paginate_liquid(collection, prev_label = nil, next_label = nil, anchor = nil)
+    def will_paginate_liquid(collection, prev_label = nil, next_label = nil, anchor = nil, param_name = nil)
       opts = {}
       opts[:previous_label] = prev_label if prev_label
       opts[:next_label]     = next_label if next_label
       opts[:params]         = {:anchor => anchor} if anchor
+      opts[:param_name]     = param_name if param_name
       opts[:controller]     = @context.registers[:controller]
       with_renderer 'WillPaginate::Liquidized::LinkRenderer' do
         will_paginate *[collection, opts].compact
