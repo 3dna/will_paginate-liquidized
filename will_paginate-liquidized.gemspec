@@ -8,6 +8,4 @@ Gem::Specification.new do |s|
   s.files       = FileList["lib/**/*.rb"].to_a
   s.add_runtime_dependency "will_paginate"
   s.add_runtime_dependency "liquid"
-  s.add_development_dependency "will_paginate"
-  s.add_development_dependency "liquid"
 end
