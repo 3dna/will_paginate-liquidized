@@ -1,5 +1,3 @@
-require 'rake'
-
 Gem::Specification.new do |s|
   s.name        = 'will_paginate-liquidized'
   s.summary     = "will_paginate-liquidized"
