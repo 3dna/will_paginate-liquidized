@@ -63,7 +63,9 @@ module WillPaginate::Liquidized
 
       @theme_api_version = @options[:controller].current_theme.api_version
 
-      if @theme_api_version == 2
+      if @theme_api_version == 3
+        to_html_v3
+      elsif @theme_api_version == 2
         to_html_v2
       else
         to_html_v1
@@ -121,16 +123,42 @@ module WillPaginate::Liquidized
       @options[:container] ? content_tag(:div, html.html_safe, html_attributes.merge(:class => "pagination")).html_safe : html.html_safe
     end
 
+    def to_html_v3
+      links = []
+      # previous/next buttons added in to the links collection
+      links.unshift page_link_in_li(@collection.previous_page, @options[:previous_label].html_safe, { class: 'page-item' }, { class: 'page-link' }) if @collection.previous_page
+      links.unshift page_link_in_li(nil, @options[:previous_label].html_safe, { class: 'page-item disabled' }, { class: 'page-link' }) unless @collection.previous_page
+      if @options[:page_links]
+        windowed_page_numbers.each do |item|
+          if item.is_a?(Fixnum)
+            if item == @collection.current_page
+              links << page_li(item, item, { class: "page-item active" }, { class: "page-link" })
+            else
+              links << page_link_in_li(item, item, { class: "page-item" }, { class: "page-link" })
+            end
+          else
+            links << send(item)
+          end
+        end
+      end
+      links.push    page_link_in_li(@collection.next_page, @options[:next_label].html_safe, { class: 'page-item'}, {class: 'page-link'}) if @collection.next_page
+      links.push    page_link_in_li(nil, @options[:next_label].html_safe, { class: 'page-item disabled' }, { class: 'page-link' }) unless @collection.next_page
+      html = content_tag :ul, links.join(@options[:separator] || "").html_safe, class: "pagination"
+      html_attributes ||= {}
+      html_attributes.delete(:controller)
+      @options[:container] ? content_tag(:nav, html.html_safe, html_attributes.merge(:class => "")).html_safe : html.html_safe
+    end
+
     def page_link(page, text, attributes = {})
       link_to text, url_for_page(page), attributes
     end
 
-    def page_link_in_li(page, text, attributes = {})
-      content_tag :li, link_to(text, url_for_page(page), attributes), attributes
+    def page_link_in_li(page, text, attributes = {}, link_attributes = {})
+      content_tag :li, link_to(text, url_for_page(page), link_attributes||attributes), attributes
     end
 
-    def page_li(page, text, attributes = {})
-      content_tag :li, link_to(text, '#', attributes), attributes
+    def page_li(page, text, attributes = {}, link_attributes = {})
+      content_tag :li, link_to(text, '#', link_attributes||attributes), attributes
     end
 
     def page_span(page, text, attributes = {})
@@ -138,7 +166,10 @@ module WillPaginate::Liquidized
     end
 
     def gap
-      if @theme_api_version == 2
+      if @theme_api_version == 3
+        text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
+        "<li class='page-item disabled'><a class='page-link'>#{text}</a></li>".html_safe
+      elsif @theme_api_version == 2
         text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
         content_tag :li, "<a>#{text}</a>".html_safe
       else
