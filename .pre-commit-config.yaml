@@ -1,0 +1,6 @@
+# Based off of https://github.com/zricethezav/gitleaks
+repos:
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.2.0
+    hooks:
+      - id: gitleaks
