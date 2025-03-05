@@ -78,7 +78,7 @@ module WillPaginate::Liquidized
       links.unshift page_link(@collection.previous_page, @options[:previous_label].html_safe) if @collection.previous_page
       if @options[:page_links]
         windowed_page_numbers.each do |item|
-          if item.is_a?(Fixnum)
+          if item.is_a?(Integer)
             if item == @collection.current_page
               links << page_span(item, item, class: "current")
             else
@@ -104,7 +104,7 @@ module WillPaginate::Liquidized
       links.unshift page_link_in_li(nil, @options[:previous_label].html_safe, :class => "disabled") unless @collection.previous_page
       if @options[:page_links]
         windowed_page_numbers.each do |item|
-          if item.is_a?(Fixnum)
+          if item.is_a?(Integer)
             if item == @collection.current_page
               links << page_li(item, item, class: "active")
             else
@@ -130,7 +130,7 @@ module WillPaginate::Liquidized
       links.unshift page_link_in_li(nil, @options[:previous_label].html_safe, { class: 'page-item disabled' }, { class: 'page-link' }) unless @collection.previous_page
       if @options[:page_links]
         windowed_page_numbers.each do |item|
-          if item.is_a?(Fixnum)
+          if item.is_a?(Integer)
             if item == @collection.current_page
               links << page_li(item, item, { class: "page-item active" }, { class: "page-link" })
             else
